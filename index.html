@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Sigmar&display=swap" rel="stylesheet">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: rgba(245, 222, 179, 0.688);
+    }
+
+    .container {
+      margin: auto;
+      padding: 10px 0;
+      width: 50vw;
+      background: #fff;
+      border-radius: 2rem;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      font-family: 'Orbitron', "微軟正黑體";
+    }
+
+    #clock {
+      width: 100%;
+      height: 50vh;
+      background: url("./clock.gif") no-repeat center/contain;
+      border-radius: 50%;
+      position: relative;
+      margin: auto;
+      top: calc(30% - 250px);
+    }
+
+    .animation {
+      animation-name: rotate;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+      animation-direction: reverse;
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(-10deg);
+      }
+
+      50% {
+        transform: rotate(10deg);
+      }
+
+      100% {
+        transform: rotate(-10deg);
+      }
+    }
+
+    #clock::before {
+      content: "";
+      width: 5vw;
+      height: 5vw;
+      background-color: rgba(245, 245, 220, 0.781);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #clock::after {
+      content: "";
+      width: 1vw;
+      height: 1vw;
+      background-color: rgb(193, 90, 16);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #hour {
+      width: 6%;
+      height: 10px;
+      background-color: rgb(193, 90, 16);
+      position: absolute;
+      border-radius: 100% 5px 5px 100%;
+      top: calc(50% - 5px);
+      left: 44%;
+      transform-origin: center right;
+    }
+
+    #minute {
+      width: 10%;
+      height: 10px;
+      background-color: rgb(193, 90, 16);
+      position: absolute;
+      border-radius: 100% 5px 5px 100%;
+      top: calc(50% - 5px);
+      left: 40%;
+      transform-origin: center right;
+    }
+
+    #second {
+      width: 12%;
+      height: 5px;
+      background-color: rgb(193, 90, 16);
+      position: absolute;
+      border-radius: 100% 5px 5px 100%;
+      top: calc(50% - 2.5px);
+      left: 38%;
+      transform-origin: center right;
+    }
+
+    #setTime {
+      text-align: center;
+      width: 50%;
+      position: relative;
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%);
+      line-height: 0;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    #setTime td {
+      width: 10vw;
+      height: 10vh;
+      font-size: 52px;
+    }
+
+    #setTime tr:nth-child(2) td {
+      height: 50px;
+      vertical-align: middle;
+      font-size: 52px;
+    }
+
+    #setTime input[type=button] {
+      width: 100px;
+      height: 50px;
+      font-size: 48px;
+      text-align: center;
+      border-radius: 2rem;
+      line-height: 1;
+      background: wheat;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    #setTime input[type=text] {
+      text-align: center;
+      font-size: 52px;
+      font-family: 'Orbitron', sans-serif;
+      color: #222;
+    }
+  </style>
+</head>
+
+<body>
+  <audio src="./sound.mp3" volume="1" id="audio"></audio>
+  <div class="container">
+    <h1 id="h1"></h1>
+    <div id="clock">
+      <div id="hour"></div>
+      <div id="minute"></div>
+      <div id="second"></div>
+    </div>
+
+    <table id="setTime">
+      <tr>
+        <td><input type="button" value="▲" class="btn"></td>
+        <td rowspan="3">:</td>
+        <td><input type="button" value="▲" class="btn"></td>
+      </tr>
+      <tr>
+        <td>
+          <input type="text" value="00" id="text-hour" size="2" maxlength="2">
+        </td>
+        <td>
+          <input type="text" value="00" id="text-minute" size="2" maxlength="2">
+        </td>
+      </tr>
+      <tr>
+        <td><input type="button" value="▼" class="btn"></td>
+        <td><input type="button" value="▼" class="btn"></td>
+      </tr>
+    </table>
+
+  </div>
+
+
+  <script>
+    const hour = document.getElementById('hour')
+    const minute = document.getElementById('minute')
+    const second = document.getElementById('second')
+
+    const clocks = document.getElementById('clock')
+    const h1 = document.getElementById('h1')
+    const audio = document.getElementById('audio')
+
+    const btns = document.querySelectorAll('.btn')
+    const textHour = document.querySelector('#text-hour')
+    const textMinute = document.querySelector('#text-minute')
+    var timeHour = 0
+    var timeMinute = 0
+
+    const clock = () => {
+      const date = new Date()
+      hour.style.transform = `rotate(${date.getHours() * 30 + 90 + date.getMinutes() * 0.5}deg)`
+      minute.style.transform = `rotate(${date.getMinutes() * 6 + 90}deg)`
+      second.style.transform = `rotate(${date.getSeconds() * 6 + 90}deg)`
+      h1.innerHTML = `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`
+    }
+    clock()
+    setInterval(clock, 1000)
+
+
+    textHour.addEventListener('change', event => {
+      // console.log(event.target.value)
+      if (textHour.value > 23 || textHour.value < 0) {
+        alert('格式錯誤，請重新輸入')
+      } else {
+        timeHour = parseInt(textHour.value)
+      }
+    })
+    textMinute.addEventListener('change', event => {
+      // console.log(event.target.value)
+      if (textMinute.value > 59 || textMinute.value < 0) {
+        alert('格式錯誤，請重新輸入')
+      } else {
+        timeMinute = parseInt(textMinute.value)
+      }
+    })
+
+    btns.forEach((btn, index) => {
+      btn.addEventListener('click', () => {
+        if (index === 0) {
+          Math.abs(timeHour++)
+          timeHour %= 24
+          if (timeHour < 10) {
+            textHour.value = `0${Math.abs(timeHour)}`
+          } else {
+            textHour.value = Math.abs(timeHour)
+          }
+        } else if (index === 2) {
+          timeHour--
+          timeHour += 24
+          timeHour %= 24
+          if (timeHour < 10) {
+            textHour.value = `0${Math.abs(timeHour)}`
+          } else {
+            textHour.value = Math.abs(timeHour)
+          }
+        } else if (index === 1) {
+          Math.abs(timeMinute++)
+          timeMinute %= 60
+          if (timeMinute < 10) {
+            textMinute.value = `0${Math.abs(timeMinute)}`
+          } else {
+            textMinute.value = Math.abs(timeMinute)
+          }
+        } else if (index === 3) {
+          timeMinute--
+          timeMinute += 60
+          timeMinute %= 60
+          if (timeMinute < 10) {
+            textMinute.value = `0${Math.abs(timeMinute)}`
+          } else {
+            textMinute.value = Math.abs(timeMinute)
+          }
+        }
+      })
+    })
+
+    setInterval(() => {
+      console.log(timeHour, timeMinute)
+      const date = new Date()
+      if (date.getHours() === timeHour && date.getMinutes() === timeMinute) {
+        clocks.classList.add('animation')
+        audio.play()
+      } else {
+        clocks.classList.remove('animation')
+        audio.pause()
+      }
+    }, 1000)
+  </script>
+</body>
+
+</html>
